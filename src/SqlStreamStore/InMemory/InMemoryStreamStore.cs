@@ -1,4 +1,6 @@
-﻿// ReSharper disable once CheckNamespace
+﻿#define KEEP_EVENTS
+
+// ReSharper disable once CheckNamespace
 namespace SqlStreamStore
 {
     using System;
@@ -286,9 +288,11 @@ namespace SqlStreamStore
                         streamId,
                         expectedVersion);
             }
+#if !KEEP_EVENTS
             InMemoryStream inMemoryStream = _streams[streamId];
-            _streams.Remove(streamId);
             inMemoryStream.DeleteAllEvents(ExpectedVersion.Any);
+#endif
+            _streams.Remove(streamId);
             _streamIds[_streamIds.IndexOf(streamId)] = null;
 
             var streamDeletedEvent = CreateStreamDeletedMessage(streamId);
