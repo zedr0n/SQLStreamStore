@@ -16,6 +16,9 @@ namespace SqlStreamStore.InMemory
         private readonly List<InMemoryStreamMessage> _messages = new List<InMemoryStreamMessage>();
         private readonly Dictionary<Guid, InMemoryStreamMessage> _messagesById = new Dictionary<Guid, InMemoryStreamMessage>();
 
+        private readonly Dictionary<Guid, LinkedListNode<InMemoryStreamMessage>> _nodesById =
+            new Dictionary<Guid, LinkedListNode<InMemoryStreamMessage>>();
+
         internal InMemoryStream(
             string streamId,
             InMemoryAllStream inMemoryAllStream,
@@ -181,7 +184,7 @@ namespace SqlStreamStore.InMemory
 
                 _messages.Add(inMemorymessage);
                 _messagesById.Add(newmessage.MessageId, inMemorymessage);
-                _inMemoryAllStream.AddAfter(_inMemoryAllStream.Last, inMemorymessage);
+                _nodesById[newmessage.MessageId] = _inMemoryAllStream.AddAfter(_inMemoryAllStream.Last, inMemorymessage);
             }
             _onStreamAppended();
         }
@@ -198,7 +201,14 @@ namespace SqlStreamStore.InMemory
 
             foreach (var inMemorymessage in _messages)
             {
-                _inMemoryAllStream.Remove(inMemorymessage);
+                var eventId = inMemorymessage.MessageId;
+                if(_nodesById.TryGetValue(eventId, out var node))
+                {
+                    _inMemoryAllStream.Remove(node);
+                    _nodesById.Remove(eventId);
+                }
+                else
+                    _inMemoryAllStream.Remove(inMemorymessage);
             }
             _messages.Clear();
             _messagesById.Clear();
@@ -212,7 +222,13 @@ namespace SqlStreamStore.InMemory
             }
 
             _messages.Remove(inMemoryStreamMessage);
-            _inMemoryAllStream.Remove(inMemoryStreamMessage);
+            if(_nodesById.TryGetValue(eventId, out var node))
+            {
+                _inMemoryAllStream.Remove(node);
+                _nodesById.Remove(eventId);
+            }
+            else
+                _inMemoryAllStream.Remove(inMemoryStreamMessage);
             _messagesById.Remove(eventId);
             return true;
         }

@@ -31,6 +31,11 @@
             }
         }
 
+        public bool HasObservers()
+        {
+            return _observers.Count > 0;
+        }
+
         public IDisposable Subscribe(IObserver<T> observer)
         {
             Guid guid = Guid.NewGuid();

@@ -44,8 +44,9 @@
         /// <returns>A <see cref="NewStreamMessage"/>A <see cref="NewStreamMessage"/>.</returns>
         public static NewStreamMessage CreateMessageDeletedMessage(string streamId, Guid messageId)
         {
-            var messageDeleted = new MessageDeleted { StreamId = streamId, MessageId = messageId };
-            var json = SimpleJson.SerializeObject(messageDeleted);
+            // var messageDeleted = new MessageDeleted { StreamId = streamId, MessageId = messageId };
+            // var json = SimpleJson.SerializeObject(messageDeleted);
+            var json = $"{{\"StreamId\":\"{streamId}\",\"MessageId\":\"{messageId}\"}}";
 
             return new NewStreamMessage(Guid.NewGuid(), MessageDeletedMessageType, json);
         }

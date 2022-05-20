@@ -54,6 +54,9 @@ namespace SqlStreamStore
                 null));
             _onStreamAppended = () =>
             {
+                if(!_subscriptions.HasObservers())
+                    return;
+                
                 if(_signallingToSubscribers.CompareExchange(true, false) == false)
                 {
                     Task.Run(() =>
