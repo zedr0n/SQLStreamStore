@@ -49,7 +49,8 @@
             StreamId streamId,
             int expectedVersion,
             NewStreamMessage[] messages,
-            CancellationToken cancellationToken = default);
+            CancellationToken cancellationToken = default,
+            bool useMaxCount = true);
 
         /// <summary>
         ///     Hard deletes a stream and all of its messages. Deleting a stream will result in a '$stream-deleted'

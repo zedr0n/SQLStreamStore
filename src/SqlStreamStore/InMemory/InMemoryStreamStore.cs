@@ -92,6 +92,16 @@ namespace SqlStreamStore
             NewStreamMessage[] messages,
             CancellationToken cancellationToken)
         {
+            return await AppendToStreamInternal(streamId, expectedVersion, messages, cancellationToken, true);
+        }
+        
+        protected override async Task<AppendResult> AppendToStreamInternal(
+            string streamId,
+            int expectedVersion,
+            NewStreamMessage[] messages,
+            CancellationToken cancellationToken,
+            bool useMaxCount)
+        {
             GuardAgainstDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -100,8 +110,12 @@ namespace SqlStreamStore
             {
                 appendResult = AppendToStreamInternal(streamId, expectedVersion, messages);
             }
-            var meta = await GetStreamMetadataInternal(streamId, cancellationToken);
-            await CheckStreamMaxCount(streamId, meta.MaxCount, cancellationToken);
+
+            if(useMaxCount)
+            {
+                var meta = await GetStreamMetadataInternal(streamId, cancellationToken);
+                await CheckStreamMaxCount(streamId, meta.MaxCount, cancellationToken);
+            }
             return appendResult;
         }
 

@@ -45,7 +45,8 @@ namespace SqlStreamStore.Infrastructure
             StreamId streamId,
             int expectedVersion,
             NewStreamMessage[] messages,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            bool useMaxCount = true)
         {
             Ensure.That(streamId.Value, nameof(streamId)).DoesNotStartWith("$");
             Ensure.That(messages, nameof(messages)).IsNotNull();
@@ -63,7 +64,7 @@ namespace SqlStreamStore.Infrastructure
             }
 
             // ... expectedVersion.NoStream and ExpectedVersion.Any may create an empty stream though
-            return AppendToStreamInternal(streamId, expectedVersion, messages, cancellationToken);
+            return AppendToStreamInternal(streamId, expectedVersion, messages, cancellationToken, useMaxCount);
         }
 
         private async Task<AppendResult> CreateAppendResultAtHeadPosition(
@@ -154,6 +155,16 @@ namespace SqlStreamStore.Infrastructure
             NewStreamMessage[] messages,
             CancellationToken cancellationToken);
 
+        protected virtual Task<AppendResult> AppendToStreamInternal(
+            string streamId,
+            int expectedVersion,
+            NewStreamMessage[] messages,
+            CancellationToken cancellationToken,
+            bool useMaxCount)
+        {
+            return AppendToStreamInternal(streamId, expectedVersion, messages, cancellationToken);
+        }
+        
         protected abstract Task DeleteStreamInternal(
             string streamId,
             int expectedVersion,

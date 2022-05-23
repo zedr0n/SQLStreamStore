@@ -15,7 +15,8 @@ namespace SqlStreamStore
             StreamId streamId,
             int expectedVersion,
             NewStreamMessage[] messages,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            bool useMaxCount = true)
         {
             Ensure.That(expectedVersion, nameof(expectedVersion)).IsGte(ExpectedVersion.NoStream);
             Ensure.That(messages, nameof(messages)).IsNotNull();
