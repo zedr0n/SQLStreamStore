@@ -18,7 +18,7 @@
     internal class Program
     {
         [Argument(0, "sqldialect", "The SQL dialect to generate the schema creation script for: mssqlv2|mssqlv3|mysql|postgres")]
-        [AllowedValues("mssqlv2", "mssqlv3", "mysql", "postgres", IgnoreCase = true)]
+        [McMaster.Extensions.CommandLineUtils.AllowedValues("mssqlv2", "mssqlv3", "mysql", "postgres", IgnoreCase = true)]
         public string SQLDialect { get; set; }
         
         [Option("-s|--schema <SCHEMA>", "The optional database schema name (only applies to mssql and postgres)", CommandOptionType.SingleValue)]
