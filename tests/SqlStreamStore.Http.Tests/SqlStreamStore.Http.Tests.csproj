@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>SqlStreamStore.Http.Tests</AssemblyName>
     <PackageId>SqlStreamStore.Http.Tests</PackageId>
     <RootNamespace>SqlStreamStore</RootNamespace>
