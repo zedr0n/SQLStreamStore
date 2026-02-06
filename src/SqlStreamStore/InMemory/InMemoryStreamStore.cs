@@ -29,6 +29,7 @@ namespace SqlStreamStore
         private readonly Subject<Unit> _subscriptions = new Subject<Unit>();
         private readonly InterlockedBoolean _signallingToSubscribers = new InterlockedBoolean();
         private readonly IList<string> _streamIds = new List<string>();
+        private readonly Dictionary<string, int> _streamIdToIndex = new Dictionary<string, int>();
         private int _currentPosition;
         private static readonly ReadNextStreamPage s_readNextNotFound =
             (_, ct) => throw new InvalidOperationException("Cannot read next page of non-exisitent stream");
@@ -164,6 +165,7 @@ namespace SqlStreamStore
                         () => _currentPosition++);
                     inMemoryStream.AppendToStream(expectedVersion, messages);
                     _streams.Add(streamId, inMemoryStream);
+                    _streamIdToIndex[streamId] = _streamIds.Count;
                     _streamIds.Add(streamId);
                 }
                 return new AppendResult(inMemoryStream.CurrentVersion, inMemoryStream.CurrentPosition);
@@ -310,7 +312,12 @@ namespace SqlStreamStore
             inMemoryStream.DeleteAllEvents(ExpectedVersion.Any);
 #endif
             _streams.Remove(streamId);
-            _streamIds[_streamIds.IndexOf(streamId)] = null;
+            if (_streamIdToIndex.TryGetValue(streamId, out var index))
+            {
+                _streamIds[index] = null;
+                _streamIdToIndex.Remove(streamId);
+            }
+            //_streamIds[_streamIds.IndexOf(streamId)] = null;
 
             var streamDeletedEvent = CreateStreamDeletedMessage(streamId);
             AppendToStreamInternal(DeletedStreamId, ExpectedVersion.Any, new[] { streamDeletedEvent });
